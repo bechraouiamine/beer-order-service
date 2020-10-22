@@ -16,6 +16,7 @@
  */
 package guru.sfg.beer.order.service.domain;
 
+import guru.sfg.beer.brewery.model.BeerOrderStatusEnum;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -42,13 +43,13 @@ public class BeerOrder extends BaseEntity {
 
     @Builder
     public BeerOrder(UUID id, Long version, Timestamp createdDate, Timestamp lastModifiedDate, String customerRef, Customer customer,
-                     Set<BeerOrderLine> beerOrderLines, OrderStatusEnum orderStatus,
+                     Set<BeerOrderLine> beerOrderLines, BeerOrderStatusEnum beerOrderStatusEnum,
                      String orderStatusCallbackUrl) {
         super(id, version, createdDate, lastModifiedDate);
         this.customerRef = customerRef;
         this.customer = customer;
         this.beerOrderLines = beerOrderLines;
-        this.orderStatus = orderStatus;
+        this.beerOrderStatusEnum = beerOrderStatusEnum;
         this.orderStatusCallbackUrl = orderStatusCallbackUrl;
     }
 
@@ -61,6 +62,6 @@ public class BeerOrder extends BaseEntity {
     @Fetch(FetchMode.JOIN)
     private Set<BeerOrderLine> beerOrderLines;
 
-    private OrderStatusEnum orderStatus = OrderStatusEnum.NEW;
+    private BeerOrderStatusEnum beerOrderStatusEnum = BeerOrderStatusEnum.NEW;
     private String orderStatusCallbackUrl;
 }
