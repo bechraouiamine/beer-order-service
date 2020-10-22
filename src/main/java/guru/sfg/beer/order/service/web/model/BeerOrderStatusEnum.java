@@ -17,7 +17,7 @@
 
 package guru.sfg.beer.order.service.web.model;
 
-public enum OrderStatusEnum {
+public enum BeerOrderStatusEnum {
     NEW, VALIDATED, VALIDATION_EXCEPTION, ALLOCATED, ALLOCATION_EXCEPTION, PENDING_INVENTORY,
-    PICKED_UP, DELIVRED, DELIVERY_EXCEPTION
+    PICKED_UP, DELIVRED, DELIVERY_EXCEPTION, READY
 }
