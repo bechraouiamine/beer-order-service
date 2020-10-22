@@ -1,4 +1,4 @@
-package guru.sfg.beer.order.service.web.model;
+package guru.sfg.beer.brewery.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
@@ -21,16 +21,16 @@ public class BeerDto {
     private UUID id = null;
     private Integer version = null;
 
-    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ssZ", shape=JsonFormat.Shape.STRING)
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ", shape = JsonFormat.Shape.STRING)
     private OffsetDateTime createdDate = null;
 
-    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ssZ", shape=JsonFormat.Shape.STRING)
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssZ", shape = JsonFormat.Shape.STRING)
     private OffsetDateTime lastModifiedDate = null;
     private String beerName;
     private String beerStyle;
     private String upc;
     private Integer quantityOnHand;
 
-    @JsonFormat(shape= JsonFormat.Shape.STRING)
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private BigDecimal price;
 }

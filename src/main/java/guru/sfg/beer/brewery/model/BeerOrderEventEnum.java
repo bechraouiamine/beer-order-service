@@ -1,4 +1,4 @@
-package guru.sfg.beer.order.service.web.model;
+package guru.sfg.beer.brewery.model;
 
 /**
  * Created by BECHRAOUI, 22/10/2020

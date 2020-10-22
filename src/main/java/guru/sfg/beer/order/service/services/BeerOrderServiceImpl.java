@@ -17,14 +17,14 @@
 
 package guru.sfg.beer.order.service.services;
 
+import guru.sfg.beer.brewery.model.BeerOrderDto;
+import guru.sfg.beer.brewery.model.BeerOrderPagedList;
 import guru.sfg.beer.order.service.domain.BeerOrder;
 import guru.sfg.beer.order.service.domain.Customer;
 import guru.sfg.beer.order.service.domain.OrderStatusEnum;
 import guru.sfg.beer.order.service.repositories.BeerOrderRepository;
 import guru.sfg.beer.order.service.repositories.CustomerRepository;
 import guru.sfg.beer.order.service.web.mappers.BeerOrderMapper;
-import guru.sfg.beer.order.service.web.model.BeerOrderDto;
-import guru.sfg.beer.order.service.web.model.BeerOrderPagedList;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -93,7 +93,7 @@ public class BeerOrderServiceImpl implements BeerOrderService {
             log.debug("Saved Beer Order: " + beerOrder.getId());
 
             //todo impl
-          //  publisher.publishEvent(new NewBeerOrderEvent(savedBeerOrder));
+            //  publisher.publishEvent(new NewBeerOrderEvent(savedBeerOrder));
 
             return beerOrderMapper.beerOrderToDto(savedBeerOrder);
         }
@@ -114,17 +114,17 @@ public class BeerOrderServiceImpl implements BeerOrderService {
         beerOrderRepository.save(beerOrder);
     }
 
-    private BeerOrder getOrder(UUID customerId, UUID orderId){
+    private BeerOrder getOrder(UUID customerId, UUID orderId) {
         Optional<Customer> customerOptional = customerRepository.findById(customerId);
 
-        if(customerOptional.isPresent()){
+        if (customerOptional.isPresent()) {
             Optional<BeerOrder> beerOrderOptional = beerOrderRepository.findById(orderId);
 
-            if(beerOrderOptional.isPresent()){
+            if (beerOrderOptional.isPresent()) {
                 BeerOrder beerOrder = beerOrderOptional.get();
 
                 // fall to exception if customer id's do not match - order not for customer
-                if(beerOrder.getCustomer().getId().equals(customerId)){
+                if (beerOrder.getCustomer().getId().equals(customerId)) {
                     return beerOrder;
                 }
             }
