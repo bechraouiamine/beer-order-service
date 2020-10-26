@@ -4,7 +4,7 @@ import guru.sfg.beer.brewery.model.BeerOrderEventEnum;
 import guru.sfg.beer.brewery.model.BeerOrderStatusEnum;
 import guru.sfg.beer.order.service.domain.BeerOrder;
 import guru.sfg.beer.order.service.repositories.BeerOrderRepository;
-import guru.sfg.beer.order.service.services.BeerOrderMangerImpl;
+import guru.sfg.beer.order.service.services.BeerOrderManagerImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
@@ -35,7 +35,7 @@ public class BeerOrderStateChangeInterceptor extends StateMachineInterceptorAdap
                                StateMachine<BeerOrderStatusEnum, BeerOrderEventEnum> stateMachine) {
 
         Optional.ofNullable(message)
-                .flatMap(msg -> Optional.ofNullable(msg.getHeaders().getOrDefault(BeerOrderMangerImpl.ORDER_ID_HEADER, -1L).toString()))
+                .flatMap(msg -> Optional.ofNullable(msg.getHeaders().getOrDefault(BeerOrderManagerImpl.ORDER_ID_HEADER, -1L).toString()))
                 .ifPresent(orderId -> {
                     log.debug("Saving state for order id : " + orderId + " Status : " + state.getId());
 

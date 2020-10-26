@@ -8,9 +8,10 @@ import org.springframework.jms.support.converter.MessageType;
 
 @Configuration
 public class JmsConfig {
+    public static final String VALIDATE_ORDER_QUEUE = "Validate_order_queue";
 
     @Bean
-    public MessageConverter messageConverter(){
+    public MessageConverter messageConverter() {
         MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
 
         converter.setTargetType(MessageType.TEXT);
