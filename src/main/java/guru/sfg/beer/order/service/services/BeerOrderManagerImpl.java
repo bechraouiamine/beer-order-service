@@ -1,5 +1,6 @@
 package guru.sfg.beer.order.service.services;
 
+import guru.sfg.beer.brewery.model.BeerOrderDto;
 import guru.sfg.beer.brewery.model.BeerOrderEventEnum;
 import guru.sfg.beer.brewery.model.BeerOrderStatusEnum;
 import guru.sfg.beer.order.service.domain.BeerOrder;
@@ -56,6 +57,29 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
         }
     }
 
+    @Override
+    public void beerOrderAllocationPassed(BeerOrderDto beerOrderDto) {
+        BeerOrder beerOrder = beerOrderRepository.getOne(beerOrderDto.getId());
+        sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.ALLOCATION_SUCCESS);
+
+        updateAllocatedQty(beerOrderDto, beerOrder);
+    }
+
+    @Override
+    public void beerOrderAllocationPendingInventory(BeerOrderDto beerOrderDto) {
+        BeerOrder beerOrder = beerOrderRepository.getOne(beerOrderDto.getId());
+        sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.ALLOCATION_NO_INVENTORY);
+
+        updateAllocatedQty(beerOrderDto, beerOrder);
+    }
+
+    @Override
+    public void beerOrderAllocationFailed(BeerOrderDto beerOrderDto) {
+        BeerOrder beerOrder = beerOrderRepository.getOne(beerOrderDto.getId());
+        sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.ALLOCATION_FAILED);
+    }
+
+
     private void sendBeerOrderEvent(BeerOrder beerOrder, BeerOrderEventEnum eventEnum) {
         StateMachine<BeerOrderStatusEnum, BeerOrderEventEnum> sm = build(beerOrder);
 
@@ -79,5 +103,19 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
         sm.start();
 
         return sm;
+    }
+
+    private void updateAllocatedQty(BeerOrderDto beerOrderDto, BeerOrder beerOrder) {
+        BeerOrder allocatedOrder = beerOrderRepository.getOne(beerOrderDto.getId());
+
+        allocatedOrder.getBeerOrderLines().forEach(beerOrderLine -> {
+            beerOrderDto.getBeerOrderLines().forEach(beerOrderLineDto -> {
+                if (beerOrderLine.getId().equals(beerOrderLineDto.getId())) {
+                    beerOrderLine.setQuantityAllocated(beerOrderLineDto.getOrderQuantity());
+                }
+            });
+        });
+
+        beerOrderRepository.saveAndFlush(beerOrder);
     }
 }
