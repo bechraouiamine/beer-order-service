@@ -29,6 +29,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.jenspiegsa.wiremockextension.ManagedWireMockServer.with;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
+import static org.awaitility.Awaitility.await;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -77,22 +78,41 @@ public class BeerOrderManagerImplIT {
 
     @Test
     void testNewToAllocated() throws JsonProcessingException {
-        BeerOrder beerOrder = createBeerOrder();
+
 
         BeerDto beerDto = BeerDto.builder().upc(UPC).build();
         BeerPagedList list = new BeerPagedList(Arrays.asList(beerDto));
 
         String res = objectMapper.writeValueAsString(beerDto);
 
+        BeerOrder beerOrder = createBeerOrder();
+
         wireMockServer.stubFor(get(BeerServiceImpl.BEER_UPC_PATH_V1 + UPC)
                 .willReturn(okJson(res)));
 
-
-
         BeerOrder savedBeerOrder = beerOrderManager.newBeerOrder(beerOrder);
 
-        assertNotNull(savedBeerOrder);
-        assertEquals(BeerOrderStatusEnum.ALLOCATED, savedBeerOrder.getBeerOrderStatus());
+        await().untilAsserted(() -> {
+            BeerOrder foundOrder = beerOrderRepository.findById(savedBeerOrder.getId()).get();
+
+            System.out.println("Searching for validated order : " + foundOrder.getId());
+
+            assertEquals(BeerOrderStatusEnum.ALLOCATED, foundOrder.getBeerOrderStatus());
+        });
+
+        await().untilAsserted(() -> {
+            BeerOrder foundOrder = beerOrderRepository.findById(savedBeerOrder.getId()).get();
+            BeerOrderLine line = foundOrder.getBeerOrderLines().iterator().next();
+
+            System.out.println("looping on beerOrder lines, beerOrder : " + foundOrder.getId());
+
+            assertEquals(line.getOrderQuantity(), line.getQuantityAllocated());
+        });
+
+        BeerOrder foundOrder = beerOrderRepository.findById(savedBeerOrder.getId()).get();
+
+        assertNotNull(foundOrder);
+        assertEquals(BeerOrderStatusEnum.ALLOCATED, foundOrder.getBeerOrderStatus());
     }
 
     public BeerOrder createBeerOrder() {

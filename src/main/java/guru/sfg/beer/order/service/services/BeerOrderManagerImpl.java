@@ -35,43 +35,60 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
     @Transactional
     @Override
     public BeerOrder newBeerOrder(BeerOrder beerOrder) {
-        log.info("BeerOrder newBeerOrder : " + beerOrder.toString());
+        log.debug("BeerOrder newBeerOrder : " + beerOrder.toString());
 
         beerOrder.setId(null);
         beerOrder.setBeerOrderStatus(BeerOrderStatusEnum.NEW);
 
         BeerOrder savedBeerOrder = beerOrderRepository.save(beerOrder);
 
-        log.info("BeerOrder savedBeerOrder on newBeerOrder : " + savedBeerOrder.toString());
+        log.debug("newBeerOrder, beerOrder saved : " + savedBeerOrder.getId());
 
         sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.VALIDATE_ORDER);
 
         return savedBeerOrder;
     }
 
+    @Transactional
     @Override
     public void processValidationResult(UUID beerOrderId, Boolean isValid) {
+        log.debug("Pocessing validation result : " + beerOrderId.toString());
+
         BeerOrder beerOrder = beerOrderRepository.getOne(beerOrderId);
 
         if (isValid) {
             sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.VALIDATION_PASSED);
 
+            log.debug("Beer order event VALIDATION_PASSED sent : beerOrder id : " + beerOrder.getId());
+
             BeerOrder validatedBeerOrder = beerOrderRepository.findOneById(beerOrder.getId());
 
-            sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.ALLOCATE_ORDER);
+            log.debug("Order id found on the database : status : " + validatedBeerOrder.getBeerOrderStatus().toString());
+
+            sendBeerOrderEvent(validatedBeerOrder, BeerOrderEventEnum.ALLOCATE_ORDER);
+
+            log.debug("Beer order event ALLOCATE_ORDER sent : beerOrder id : " + beerOrder.getId());
         } else {
             sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.VALIDATION_FAILED);
         }
     }
 
+    @Transactional
     @Override
     public void beerOrderAllocationPassed(BeerOrderDto beerOrderDto) {
+        log.debug("Allocation passed beer ID : " + beerOrderDto.getId());
         BeerOrder beerOrder = beerOrderRepository.getOne(beerOrderDto.getId());
+
+        log.debug("Beerorder found on the database : " + beerOrder.getId());
+
         sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.ALLOCATION_SUCCESS);
+
+        log.debug("Sending Allocation success order");
 
         updateAllocatedQty(beerOrderDto, beerOrder);
     }
 
+    @Transactional
     @Override
     public void beerOrderAllocationPendingInventory(BeerOrderDto beerOrderDto) {
         BeerOrder beerOrder = beerOrderRepository.getOne(beerOrderDto.getId());
@@ -80,6 +97,7 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
         updateAllocatedQty(beerOrderDto, beerOrder);
     }
 
+    @Transactional
     @Override
     public void beerOrderAllocationFailed(BeerOrderDto beerOrderDto) {
         BeerOrder beerOrder = beerOrderRepository.getOne(beerOrderDto.getId());

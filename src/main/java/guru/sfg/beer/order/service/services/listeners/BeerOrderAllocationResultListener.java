@@ -17,8 +17,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class BeerOrderAllocationResultListener {
 
-    private JmsTemplate jmsTemplate;
-    private BeerOrderManager beerOrderManager;
+    private final JmsTemplate jmsTemplate;
+    private final BeerOrderManager beerOrderManager;
 
     @JmsListener(destination = JmsConfig.ALLOCATE_ORDER_RESPONSE_QUEUE)
     public void listen(AllocateOrderResult allocateOrderResult) {

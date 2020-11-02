@@ -3,6 +3,7 @@ package guru.sfg.beer.order.service.statemachine.actions;
 import guru.sfg.beer.brewery.model.BeerOrderEventEnum;
 import guru.sfg.beer.brewery.model.BeerOrderStatusEnum;
 import guru.sfg.beer.brewery.model.events.AllocateOrderRequest;
+import guru.sfg.beer.brewery.model.events.AllocateOrderResult;
 import guru.sfg.beer.order.service.config.JmsConfig;
 import guru.sfg.beer.order.service.domain.BeerOrder;
 import guru.sfg.beer.order.service.repositories.BeerOrderRepository;
@@ -30,16 +31,20 @@ public class AllocateOrderAction implements Action<BeerOrderStatusEnum, BeerOrde
     private final BeerOrderMapper beerOrderMapper;
 
     @Override
-
     public void execute(StateContext<BeerOrderStatusEnum, BeerOrderEventEnum> stateContext) {
         String beerOrderId = stateContext.getMessage().getHeaders().get(BeerOrderManagerImpl.ORDER_ID_HEADER).toString();
+
+        log.debug("Allocation order action received beerorderid : " + beerOrderId);
+
         BeerOrder beerOrder = beerOrderRepository.getOne(UUID.fromString(beerOrderId));
 
-        jmsTemplate.convertAndSend(JmsConfig.VALIDATE_ORDER_QUEUE,
+        log.debug("beer order found on the database : " + beerOrder.getId());
+
+        jmsTemplate.convertAndSend(JmsConfig.ALLOCATE_ORDER_QUEUE,
                 AllocateOrderRequest.builder()
                         .beerOrderDto(beerOrderMapper.beerOrderToDto(beerOrder))
                         .build());
 
-        log.info("Allocate beer order request, beerOrderId : " + beerOrderId);
+        log.debug("Allocate beer order request, beerOrderId : " + beerOrderId);
     }
 }
