@@ -7,6 +7,7 @@ import guru.sfg.beer.order.service.domain.BeerOrder;
 import guru.sfg.beer.order.service.repositories.BeerOrderRepository;
 import guru.sfg.beer.order.service.statemachine.BeerOrderStateChangeInterceptor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
@@ -22,6 +23,7 @@ import java.util.UUID;
  */
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class BeerOrderManagerImpl implements BeerOrderManager {
 
     public static final String ORDER_ID_HEADER = "ORDER_ID_HEADER";
@@ -33,13 +35,18 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
     @Transactional
     @Override
     public BeerOrder newBeerOrder(BeerOrder beerOrder) {
+        log.info("BeerOrder newBeerOrder : " + beerOrder.toString());
+
         beerOrder.setId(null);
         beerOrder.setBeerOrderStatus(BeerOrderStatusEnum.NEW);
 
-        BeerOrder savedbeerORder = beerOrderRepository.save(beerOrder);
-        sendBeerOrderEvent(savedbeerORder, BeerOrderEventEnum.VALIDATE_ORDER);
+        BeerOrder savedBeerOrder = beerOrderRepository.save(beerOrder);
 
-        return savedbeerORder;
+        log.info("BeerOrder savedBeerOrder on newBeerOrder : " + savedBeerOrder.toString());
+
+        sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.VALIDATE_ORDER);
+
+        return savedBeerOrder;
     }
 
     @Override
@@ -82,6 +89,8 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
 
     private void sendBeerOrderEvent(BeerOrder beerOrder, BeerOrderEventEnum eventEnum) {
         StateMachine<BeerOrderStatusEnum, BeerOrderEventEnum> sm = build(beerOrder);
+
+        log.info("beerOrder.getId().toString() : " + beerOrder.getId().toString());
 
         Message msg = MessageBuilder.withPayload(eventEnum)
                 .setHeader(ORDER_ID_HEADER, beerOrder.getId().toString())

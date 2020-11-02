@@ -54,4 +54,15 @@ public class BeerOrderLine extends BaseEntity {
     private String upc;
     private Integer orderQuantity = 0;
     private Integer quantityAllocated = 0;
+
+    @Override
+    public String toString() {
+        return "BeerOrderLine{" +
+
+                ", beerId=" + beerId +
+                ", upc='" + upc + '\'' +
+                ", orderQuantity=" + orderQuantity +
+                ", quantityAllocated=" + quantityAllocated +
+                '}';
+    }
 }
