@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.jenspiegsa.wiremockextension.WireMockExtension;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import guru.sfg.beer.brewery.model.BeerDto;
-import guru.sfg.beer.brewery.model.BeerOrderPagedList;
 import guru.sfg.beer.brewery.model.BeerOrderStatusEnum;
 import guru.sfg.beer.brewery.model.BeerPagedList;
 import guru.sfg.beer.order.service.domain.BeerOrder;
@@ -22,11 +21,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 
-import java.util.*;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 import static com.github.jenspiegsa.wiremockextension.ManagedWireMockServer.with;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.awaitility.Awaitility.await;
@@ -64,7 +65,7 @@ public class BeerOrderManagerImplIT {
     @TestConfiguration
     static class RestTemplateBuildProvider {
         @Bean(destroyMethod = "stop")
-        public WireMockServer wireMockServer(){
+        public WireMockServer wireMockServer() {
             WireMockServer server = with(wireMockConfig().port(8083));
             server.start();
             return server;
@@ -95,17 +96,12 @@ public class BeerOrderManagerImplIT {
         await().untilAsserted(() -> {
             BeerOrder foundOrder = beerOrderRepository.findById(savedBeerOrder.getId()).get();
 
-            System.out.println("Searching for validated order : " + foundOrder.getId());
-
             assertEquals(BeerOrderStatusEnum.ALLOCATED, foundOrder.getBeerOrderStatus());
         });
 
         await().untilAsserted(() -> {
             BeerOrder foundOrder = beerOrderRepository.findById(savedBeerOrder.getId()).get();
             BeerOrderLine line = foundOrder.getBeerOrderLines().iterator().next();
-
-            System.out.println("looping on beerOrder lines, beerOrder : " + foundOrder.getId());
-
             assertEquals(line.getOrderQuantity(), line.getQuantityAllocated());
         });
 
@@ -113,6 +109,9 @@ public class BeerOrderManagerImplIT {
 
         assertNotNull(foundOrder);
         assertEquals(BeerOrderStatusEnum.ALLOCATED, foundOrder.getBeerOrderStatus());
+        foundOrder.getBeerOrderLines().forEach(line -> {
+            assertEquals(line.getOrderQuantity(), line.getQuantityAllocated());
+        });
     }
 
     public BeerOrder createBeerOrder() {
