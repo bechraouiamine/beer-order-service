@@ -105,6 +105,15 @@ public class BeerOrderManagerImpl implements BeerOrderManager {
         sendBeerOrderEvent(beerOrder, BeerOrderEventEnum.ALLOCATION_FAILED);
     }
 
+    @Override
+    public void beerOrderPickedUp(UUID id) {
+        Optional<BeerOrder> beerOrder = beerOrderRepository.findById(id);
+
+        beerOrder.ifPresentOrElse(beerOrder1 -> {
+            sendBeerOrderEvent(beerOrder1, BeerOrderEventEnum.BEERORDER_PICKED_UP);
+        }, () -> log.error("Order not found, id :  " + id));
+    }
+
 
     private void sendBeerOrderEvent(BeerOrder beerOrder, BeerOrderEventEnum eventEnum) {
         StateMachine<BeerOrderStatusEnum, BeerOrderEventEnum> sm = build(beerOrder);

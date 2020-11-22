@@ -26,7 +26,7 @@ public class ValidationResultListener {
 
         log.info("Validation Result for order id : " + beerOrderId);
 
-        Boolean isValid = true;
+        Boolean isValid = validateOrderResult.getIsValid();
 
         beerOrderManager.processValidationResult(
                 beerOrderId,

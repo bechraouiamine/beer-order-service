@@ -22,14 +22,18 @@ public class BeerOrderValidationListener {
 
     @JmsListener(destination = JmsConfig.VALIDATE_ORDER_QUEUE)
     public void listen(Message msg) {
+        boolean isValid = true;
 
         ValidateOrderRequest request = (ValidateOrderRequest) msg.getPayload();
+
+        if (request.getBeerOrderDto().getCustomerRef() != null && request.getBeerOrderDto().getCustomerRef().equals("ValidationException"))
+            isValid = false;
 
         System.out.println("Running Validation from test component !!! Order id : " + request.getBeerOrderDto().getId());
 
         jmsTemplate.convertAndSend(JmsConfig.VALIDATE_ORDER_RESPONSE_QUEUE,
                 ValidateOrderResult.builder()
-                        .isValid(true)
+                        .isValid(isValid)
                         .orderId(request.getBeerOrderDto().getId())
                         .build()
         );
