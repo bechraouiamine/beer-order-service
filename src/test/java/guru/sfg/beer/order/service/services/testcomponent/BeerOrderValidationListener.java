@@ -18,6 +18,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class BeerOrderValidationListener {
 
+    public static final String RUNNING_VALIDATION_FROM_TEST_COMPONENT_ORDER_ID = "Running Validation from test component !!! Order id : ";
+    public static final String VALIDATION_EXCEPTION = "ValidationException";
     private final JmsTemplate jmsTemplate;
 
     @JmsListener(destination = JmsConfig.VALIDATE_ORDER_QUEUE)
@@ -26,10 +28,10 @@ public class BeerOrderValidationListener {
 
         ValidateOrderRequest request = (ValidateOrderRequest) msg.getPayload();
 
-        if (request.getBeerOrderDto().getCustomerRef() != null && request.getBeerOrderDto().getCustomerRef().equals("ValidationException"))
+        if (request.getBeerOrderDto().getCustomerRef() != null && request.getBeerOrderDto().getCustomerRef().equals(VALIDATION_EXCEPTION))
             isValid = false;
 
-        System.out.println("Running Validation from test component !!! Order id : " + request.getBeerOrderDto().getId());
+        System.out.println(RUNNING_VALIDATION_FROM_TEST_COMPONENT_ORDER_ID + request.getBeerOrderDto().getId());
 
         jmsTemplate.convertAndSend(JmsConfig.VALIDATE_ORDER_RESPONSE_QUEUE,
                 ValidateOrderResult.builder()

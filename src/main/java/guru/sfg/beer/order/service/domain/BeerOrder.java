@@ -68,8 +68,6 @@ public class BeerOrder extends BaseEntity {
     @Override
     public String toString() {
         return "BeerOrder{" +
-
-
                 ", beerOrderLines=" + beerOrderLines +
                 ", beerOrderStatus=" + beerOrderStatus +
                 ", orderStatusCallbackUrl='" + orderStatusCallbackUrl + '\'' +
