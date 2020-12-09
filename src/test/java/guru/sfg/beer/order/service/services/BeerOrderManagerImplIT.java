@@ -216,6 +216,14 @@ public class BeerOrderManagerImplIT {
         });
     }
 
+    @Test
+    void testCancelOrder() throws JsonProcessingException {
+        BeerDto beerDto = BeerDto.builder().upc(UPC).build();
+
+        wireMockServer.stubFor(get(BeerServiceImpl.BEER_UPC_PATH_V1 + UPC)
+                .willReturn(okJson(objectMapper.writeValueAsString(beerDto))));
+    }
+
     public BeerOrder createBeerOrder() {
         BeerOrder beerOrder = BeerOrder.builder().customer(testCustomer).build();
 
