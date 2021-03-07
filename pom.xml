@@ -19,7 +19,7 @@
     <description>MSSC Beer Order Service</description>
 
     <properties>
-        <spring-cloud.version>Hoxton.SR1</spring-cloud.version>
+        <docker.image.prefix>abechraoui</docker.image.prefix>
     </properties>
 
     <dependencies>
