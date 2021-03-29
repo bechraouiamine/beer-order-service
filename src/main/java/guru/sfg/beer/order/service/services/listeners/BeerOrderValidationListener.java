@@ -1,4 +1,4 @@
-package guru.sfg.beer.order.service.services.testcomponent;
+package guru.sfg.beer.order.service.services.listeners;
 
 import guru.sfg.beer.brewery.model.events.ValidateOrderRequest;
 import guru.sfg.beer.brewery.model.events.ValidateOrderResult;
